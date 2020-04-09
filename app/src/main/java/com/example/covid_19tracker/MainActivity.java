@@ -2,6 +2,9 @@ package com.example.covid_19tracker;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -15,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         assignId();
+
         retroRequest();
      }
     void assignId() {
@@ -34,9 +38,13 @@ public class MainActivity extends AppCompatActivity {
         nRecover.setText("New Recovered :" + details.getGlobal().getNewRecovered());
         tRecover.setText("Total Recovered :" + details.getGlobal().getTotalRecovered());}
     void retroRequest(){
+        HttpLoggingInterceptor loggingInterceptor=new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient=new OkHttpClient.Builder().addInterceptor(loggingInterceptor).build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.covid19api.com/")
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
                 .build();
         CovidApi covidApi = retrofit.create(CovidApi.class);
         Call<Covid> call = covidApi.getCovid();
